@@ -405,7 +405,6 @@ export default function Field() {
     const clock = new THREE.Clock();
     let time = 0;
     let raf = 0;
-    let dbgFrame = 0;
 
     const loop = () => {
       raf = requestAnimationFrame(loop);
@@ -471,51 +470,6 @@ export default function Field() {
 
       pointsMat.uniforms.uPositions.value = current.texture;
       pointsMat.uniforms.uTime.value = time;
-
-      // TEMP DEBUG PROBE (removed before delivery)
-      dbgFrame++;
-      if (dbgFrame % 20 === 0) {
-        const buf = new Float32Array(SIZE * SIZE * 4);
-        try {
-          renderer.readRenderTargetPixels(
-            current,
-            0,
-            0,
-            SIZE,
-            SIZE,
-            buf
-          );
-          let nan = 0;
-          let far = 0;
-          let onShell = 0;
-          let maxR = 0;
-          for (let i = 0; i < buf.length; i += 4) {
-            const x = buf[i];
-            const y = buf[i + 1];
-            const z = buf[i + 2];
-            if (Number.isNaN(x) || Number.isNaN(y) || Number.isNaN(z)) {
-              nan++;
-              continue;
-            }
-            const r = Math.hypot(x, y, z);
-            if (r > 1.5) far++;
-            if (r > maxR) maxR = r;
-            if (Math.abs(r - 0.55) < 0.12) onShell++;
-          }
-          (window as unknown as Record<string, unknown>).__fieldProbe = {
-            frame: dbgFrame,
-            nan,
-            far,
-            onShell,
-            maxR: +maxR.toFixed(3),
-            total: SIZE * SIZE,
-          };
-        } catch (e) {
-          (window as unknown as Record<string, unknown>).__fieldProbe = {
-            err: String(e),
-          };
-        }
-      }
 
       // gaze camera
       const nx = (pointer.x / window.innerWidth) * 2 - 1;
