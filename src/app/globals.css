@@ -328,18 +328,33 @@ body {
   top: 260px;
   left: 24px;
   bottom: 96px;
-  width: 320px;
+  width: 340px;
   overflow-y: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+  -ms-overflow-style: auto;
+  padding-right: 6px;
 }
 
 .list::-webkit-scrollbar {
-  display: none;
+  width: 6px;
+}
+
+.list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.list::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 3px;
+}
+
+.list::-webkit-scrollbar-thumb:hover {
+  background: #3a3a3a;
 }
 
 .card {
-  padding: 16px 0;
+  padding: 12px 0;
   border-top: 1px solid var(--line);
 }
 
@@ -349,7 +364,7 @@ body {
 }
 
 .thumb {
-  height: 170px;
+  height: 140px;
   border-radius: 2px;
   background: #0a0a0a;
   overflow: hidden;

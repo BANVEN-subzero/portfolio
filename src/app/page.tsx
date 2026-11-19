@@ -14,7 +14,7 @@ interface Card {
 
 const CARDS: Card[] = [
   {
-    src: "/projects/cultia.jpg",
+    src: "/projects/cultia.jpg?v=2",
     title: "CULTIA",
     sub: "Cultural heritage",
     r1: "Python · Flask",
@@ -22,7 +22,7 @@ const CARDS: Card[] = [
     alt: "Cameroonian cultural heritage artefacts on a dark museum display — CULTIA project thumbnail",
   },
   {
-    src: "/projects/mediscan.jpg",
+    src: "/projects/mediscan.jpg?v=2",
     title: "MEDISCAN AI",
     sub: "Health information",
     r1: "Concept · AI",
@@ -30,7 +30,7 @@ const CARDS: Card[] = [
     alt: "Dark-mode medical information app concept with AI neural overlay — MEDISCAN AI project thumbnail",
   },
   {
-    src: "/projects/tryons.jpg",
+    src: "/projects/tryons.jpg?v=2",
     title: "TRYONS",
     sub: "AR e-commerce",
     r1: "Node.js · Express",
@@ -38,7 +38,7 @@ const CARDS: Card[] = [
     alt: "Augmented reality furniture preview on a smartphone — TRYONS AR e-commerce project thumbnail",
   },
   {
-    src: "/projects/utrust.jpg",
+    src: "/projects/utrust.jpg?v=2",
     title: "U-TRUST",
     sub: "Expense tracker",
     r1: "Personal finance",
@@ -165,7 +165,7 @@ export default function Home() {
           <div className="portrait-wrap">
             <img
               className="portrait"
-              src="/portrait.png"
+              src="/portrait.png?v=2"
               alt="Portrait of Nyuydze Banven Eric Junior"
               width="320"
               height="400"
