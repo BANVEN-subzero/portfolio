@@ -514,8 +514,9 @@ body {
 
 .portrait-wrap {
   display: flex;
-  flex-direction: column;
-  align-items: stretch;
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
   margin-bottom: 1.4em;
   padding-bottom: 1.2em;
   border-bottom: 1px solid var(--line);
@@ -523,9 +524,9 @@ body {
 
 .portrait {
   display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 4 / 5;
+  width: 130px;
+  height: 160px;
+  flex: 0 0 auto;
   object-fit: cover;
   object-position: top center;
   border: 1px solid var(--line);
@@ -537,8 +538,10 @@ body {
 .portrait-meta {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  margin-top: 10px;
+  gap: 3px;
+  margin-top: 0;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .portrait-name {
