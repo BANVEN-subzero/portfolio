@@ -81,15 +81,16 @@ const NAV = [
 
 export default function Home() {
   const [active, setActive] = useState(0);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <>
       <Field />
       <nav className="menu-bar blend" aria-label="Section navigation">
-        <a className="menu-brand" href="#profile">
+        <a className="menu-brand" href="#top" onClick={() => setMenuOpen(false)}>
           <svg
-            width="22"
-            height="22"
+            width="26"
+            height="26"
             viewBox="0 0 40 40"
             aria-hidden="true"
             focusable="false"
@@ -106,77 +107,121 @@ export default function Home() {
           </svg>
           <span>BANVEN ERIC</span>
         </a>
-        <ul className="menu-links">
+
+        <ul className="menu-links" id="menu-links">
           {NAV.map((item) => (
             <li key={item.href}>
-              <a href={item.href}>{item.label}</a>
+              <a href={item.href} onClick={() => setMenuOpen(false)}>
+                {item.label}
+              </a>
             </li>
           ))}
         </ul>
-        <a className="menu-cv" href={CV} download="Nyuydze-Banven-Eric-Junior-CV.pdf">
-          CV ↓
-        </a>
+
+        <div className="menu-right">
+          <a className="menu-cv" href={CV} download="Nyuydze-Banven-Eric-Junior-CV.pdf">
+            CV ↓
+          </a>
+          <button
+            type="button"
+            className="menu-toggle"
+            aria-label="Toggle navigation menu"
+            aria-expanded={menuOpen}
+            aria-controls="mobile-menu"
+            onClick={() => setMenuOpen((o) => !o)}
+          >
+            <span className="menu-toggle-bar" data-open={menuOpen ? "true" : "false"} />
+            <span className="menu-toggle-bar" data-open={menuOpen ? "true" : "false"} />
+            <span className="menu-toggle-bar" data-open={menuOpen ? "true" : "false"} />
+          </button>
+        </div>
       </nav>
 
-      <div className="ui">
-        <div className="counter blend" aria-label="4 featured projects">
-          04
+      {menuOpen && (
+        <div className="mobile-menu" id="mobile-menu">
+          <ul>
+            {NAV.map((item) => (
+              <li key={item.href}>
+                <a href={item.href} onClick={() => setMenuOpen(false)}>
+                  {item.label}
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
+      )}
 
-        <nav className="tags blend" aria-label="Skill filters">
-          {TAGS.map((tag, i) => (
-            <button
-              type="button"
-              key={tag}
-              className={i === active ? "chip active" : "chip"}
-              onClick={() => setActive(i)}
-            >
-              {tag}
-            </button>
-          ))}
-        </nav>
-
-        <aside className="list" aria-label="Selected projects">
-          {CARDS.map((card) => (
-            <article className="card" key={card.title}>
-              <div className="thumb">
-                <img
-                  src={card.src}
-                  alt={card.alt}
-                  loading="lazy"
-                  decoding="async"
-                />
-              </div>
-              <div className="meta">
-                <div className="l">
-                  <span>{card.title}</span>
-                  <span>{card.sub}</span>
-                </div>
-                <div className="r">
-                  <span>{card.r1}</span>
-                  <span>{card.r2}</span>
-                </div>
-              </div>
-            </article>
-          ))}
-        </aside>
-
-        <aside className="about" aria-label="Profile, projects, qualifications, contact">
-          <div className="portrait-wrap">
+      <main className="page" id="top">
+        {/* Hero */}
+        <section className="hero" aria-label="Intro">
+          <div className="hero-portrait-wrap">
             <img
-              className="portrait"
+              className="hero-portrait"
               src="/portrait.png?v=2"
               alt="Portrait of Nyuydze Banven Eric Junior"
-              width="320"
-              height="400"
+              width="240"
+              height="300"
             />
-            <div className="portrait-meta">
-              <span className="portrait-name">Nyuydze Banven Eric Junior</span>
-              <span className="portrait-role">Software Engineering · University of Buea</span>
-              <span className="portrait-loc">Yaoundé · Cameroon</span>
+            <div className="hero-meta">
+              <span className="hero-name">Nyuydze Banven Eric Junior</span>
+              <span className="hero-role">Software Engineering · University of Buea</span>
+              <span className="hero-loc">Yaoundé · Cameroon</span>
             </div>
           </div>
+          <div className="hero-counter blend" aria-label="4 featured projects">
+            <span className="hero-counter-num">04</span>
+            <span className="hero-counter-label">Featured projects</span>
+          </div>
+        </section>
 
+        {/* Tags */}
+        <section className="tags-section" aria-label="Skill filters">
+          <h2 className="section-title">[ stack filter ]</h2>
+          <nav className="tags">
+            {TAGS.map((tag, i) => (
+              <button
+                type="button"
+                key={tag}
+                className={i === active ? "chip active" : "chip"}
+                onClick={() => setActive(i)}
+              >
+                {tag}
+              </button>
+            ))}
+          </nav>
+        </section>
+
+        {/* Project grid */}
+        <section className="projects-section" id="projects" aria-label="Selected projects">
+          <h2 className="section-title">[ selected projects ]</h2>
+          <div className="projects-grid">
+            {CARDS.map((card) => (
+              <article className="card" key={card.title}>
+                <div className="thumb">
+                  <img
+                    src={card.src}
+                    alt={card.alt}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
+                <div className="meta">
+                  <div className="l">
+                    <span>{card.title}</span>
+                    <span>{card.sub}</span>
+                  </div>
+                  <div className="r">
+                    <span>{card.r1}</span>
+                    <span>{card.r2}</span>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        {/* Long-form content */}
+        <section className="content" aria-label="Profile, projects, qualifications, contact">
           <section id="profile">
             <h2>[profile]</h2>
             <p>
@@ -233,8 +278,8 @@ export default function Home() {
             </ul>
           </section>
 
-          <section id="projects">
-            <h2>[projects]</h2>
+          <section>
+            <h2>[projects — detail]</h2>
             <p className="proj-name">CULTIA — cultural heritage platform</p>
             <p>
               Catalogues and surfaces Cameroonian cultural artefacts, stories,
@@ -337,8 +382,9 @@ export default function Home() {
             </a>
             <p className="loc">Yaoundé, Cameroon</p>
           </section>
-        </aside>
+        </section>
 
+        {/* Sticky contact bar */}
         <nav className="contact-bar" aria-label="Quick contact">
           <a
             className="cbtn cbtn-wa"
@@ -398,7 +444,10 @@ export default function Home() {
             <span className="cbtn-label">Download CV</span>
           </a>
         </nav>
-      </div>
+
+        {/* Footer spacer so contact bar never hides the last content */}
+        <div className="footer-spacer" aria-hidden="true" />
+      </main>
     </>
   );
 }
