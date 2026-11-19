@@ -104,7 +104,7 @@ export default function Home() {
             />
             <polygon points={STAR_POINTS} fill="white" />
           </svg>
-          <span>BANVEN</span>
+          <span>BANVEN ERIC</span>
         </a>
         <ul className="menu-links">
           {NAV.map((item) => (
