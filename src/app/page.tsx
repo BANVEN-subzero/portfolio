@@ -3,44 +3,47 @@
 import { useState } from "react";
 import Field from "@/components/field";
 
-const R2 = "https://pub-86dc5b5484314368ac5436a674b0d919.r2.dev/aaaf";
-
 interface Card {
   src: string;
   title: string;
   sub: string;
   r1: string;
   r2: string;
+  alt: string;
 }
 
 const CARDS: Card[] = [
   {
-    src: `${R2}/oraciteslArea.mp4`,
+    src: "/projects/cultia.jpg",
     title: "CULTIA",
     sub: "Cultural heritage",
     r1: "Python · Flask",
     r2: "AI chatbot · SQLite",
+    alt: "Cameroonian cultural heritage artefacts on a dark museum display — CULTIA project thumbnail",
   },
   {
-    src: `${R2}/facet-glass-hero.mp4`,
+    src: "/projects/mediscan.jpg",
     title: "MEDISCAN AI",
     sub: "Health information",
     r1: "Concept · AI",
     r2: "Informational tool",
+    alt: "Dark-mode medical information app concept with AI neural overlay — MEDISCAN AI project thumbnail",
   },
   {
-    src: `${R2}/stellarmind-hero.mp4`,
+    src: "/projects/tryons.jpg",
     title: "TRYONS",
     sub: "AR e-commerce",
     r1: "Node.js · Express",
     r2: "MongoDB · Tailwind",
+    alt: "Augmented reality furniture preview on a smartphone — TRYONS AR e-commerce project thumbnail",
   },
   {
-    src: `${R2}/thedropthroughArea.mp4`,
+    src: "/projects/utrust.jpg",
     title: "U-TRUST",
     sub: "Expense tracker",
     r1: "Personal finance",
     r2: "FCFA default",
+    alt: "Dark-mode personal finance app dashboard in FCFA — U-TRUST expense tracker project thumbnail",
   },
 ];
 
@@ -68,17 +71,25 @@ const GITHUB = "https://github.com/BANVEN-subzero";
 const PHONE = "tel:+237673491464";
 const CV = "/Nyuydze-Banven-Eric-Junior-CV.pdf";
 
+const NAV = [
+  { label: "Profile", href: "#profile" },
+  { label: "Projects", href: "#projects" },
+  { label: "Qualifications", href: "#qualifications" },
+  { label: "Ambition", href: "#ambition" },
+  { label: "Contact", href: "#connect" },
+];
+
 export default function Home() {
   const [active, setActive] = useState(0);
 
   return (
     <>
       <Field />
-      <div className="ui">
-        <header className="brand blend">
+      <nav className="menu-bar blend" aria-label="Section navigation">
+        <a className="menu-brand" href="#profile">
           <svg
-            width="40"
-            height="40"
+            width="22"
+            height="22"
             viewBox="0 0 40 40"
             aria-hidden="true"
             focusable="false"
@@ -93,12 +104,21 @@ export default function Home() {
             />
             <polygon points={STAR_POINTS} fill="white" />
           </svg>
-          <div className="brand-text">
-            <h1>Banven</h1>
-            <p>Software engineering</p>
-          </div>
-        </header>
+          <span>BANVEN</span>
+        </a>
+        <ul className="menu-links">
+          {NAV.map((item) => (
+            <li key={item.href}>
+              <a href={item.href}>{item.label}</a>
+            </li>
+          ))}
+        </ul>
+        <a className="menu-cv" href={CV} download="Nyuydze-Banven-Eric-Junior-CV.pdf">
+          CV ↓
+        </a>
+      </nav>
 
+      <div className="ui">
         <div className="counter blend" aria-label="4 featured projects">
           04
         </div>
@@ -120,14 +140,11 @@ export default function Home() {
           {CARDS.map((card) => (
             <article className="card" key={card.title}>
               <div className="thumb">
-                <video
+                <img
                   src={card.src}
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  preload="metadata"
-                  aria-hidden="true"
+                  alt={card.alt}
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
               <div className="meta">
@@ -145,15 +162,22 @@ export default function Home() {
         </aside>
 
         <aside className="about" aria-label="Profile, projects, qualifications, contact">
-          <img
-            className="portrait"
-            src="/portrait.png"
-            alt="Portrait of Nyuydze Banven Eric Junior"
-            width="112"
-            height="140"
-          />
+          <div className="portrait-wrap">
+            <img
+              className="portrait"
+              src="/portrait.png"
+              alt="Portrait of Nyuydze Banven Eric Junior"
+              width="320"
+              height="400"
+            />
+            <div className="portrait-meta">
+              <span className="portrait-name">Nyuydze Banven Eric Junior</span>
+              <span className="portrait-role">Software Engineering · University of Buea</span>
+              <span className="portrait-loc">Yaoundé · Cameroon</span>
+            </div>
+          </div>
 
-          <section>
+          <section id="profile">
             <h2>[profile]</h2>
             <p>
               Nyuydze Banven Eric Junior. Software engineering master&apos;s
@@ -209,7 +233,7 @@ export default function Home() {
             </ul>
           </section>
 
-          <section>
+          <section id="projects">
             <h2>[projects]</h2>
             <p className="proj-name">CULTIA — cultural heritage platform</p>
             <p>
@@ -245,7 +269,7 @@ export default function Home() {
             </p>
           </section>
 
-          <section>
+          <section id="qualifications">
             <h2>[qualifications]</h2>
             <ul>
               <li>
@@ -271,7 +295,7 @@ export default function Home() {
             </ul>
           </section>
 
-          <section>
+          <section id="stack">
             <h2>[stack]</h2>
             <ul>
               <li>Languages — Python, JavaScript, Java, C++</li>
@@ -281,7 +305,7 @@ export default function Home() {
             </ul>
           </section>
 
-          <section>
+          <section id="ambition">
             <h2>[ambition]</h2>
             <p>
               I want to build software that holds up — clean codebases,
@@ -298,7 +322,7 @@ export default function Home() {
             </p>
           </section>
 
-          <section>
+          <section id="connect">
             <h2>[connect]</h2>
             <a href={WHATSAPP} target="_blank" rel="noopener noreferrer">
               WhatsApp -&gt; +237 673 491 464
