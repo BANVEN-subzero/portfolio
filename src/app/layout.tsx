@@ -47,6 +47,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          type="importmap"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              imports: {
+                three: "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/",
+              },
+            }),
+          }}
+        />
+      </head>
       <body className="antialiased">
         {children}
         <Toaster />

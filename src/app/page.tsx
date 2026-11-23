@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
+import NoaHero from "@/components/noa-hero";
 
 /* ============================================================
    Data
@@ -249,14 +250,6 @@ function MagneticLink({
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const heroRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  });
-  const portraitY = useTransform(scrollYProgress, [0, 1], [0, -120]);
-  const portraitOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0.3]);
-  const nameY = useTransform(scrollYProgress, [0, 1], [0, 80]);
 
   return (
     <div className="site">
@@ -311,85 +304,9 @@ export default function Home() {
         </div>
       )}
 
+      <NoaHero />
+
       <main className="main" id="top">
-        {/* ============================================================
-            Hero — asymmetric editorial composition
-            ============================================================ */}
-        <section className="hero" ref={heroRef} aria-label="Introduction">
-          <motion.div className="hero-left" style={{ y: nameY }}>
-            <Reveal>
-              <p className="hero-tag">
-                <span className="hero-tag-dot" /> Engineering · Intelligence · Automation
-              </p>
-            </Reveal>
-            <Reveal delay={0.08}>
-              <h1 className="hero-name">
-                Nyuydze<br />
-                Banven<br />
-                <em>Eric Junior</em>
-              </h1>
-            </Reveal>
-            <Reveal delay={0.18}>
-              <p className="hero-intro">
-                Computer engineering postgraduate building practical software for
-                low-bandwidth contexts — cultural preservation, personal finance,
-                AR commerce, and AI-assisted information tools. Based in Yaoundé,
-                studying at the University of Buea.
-              </p>
-            </Reveal>
-            <Reveal delay={0.26}>
-              <div className="hero-actions">
-                <MagneticLink href="#work" className="link-arrow">
-                  <span>View selected work</span>
-                  <span className="arrow" aria-hidden="true">→</span>
-                </MagneticLink>
-                <MagneticLink href={CV} download="Nyuydze-Banven-Eric-Junior-CV.pdf" className="link-underline">
-                  Download CV
-                </MagneticLink>
-              </div>
-            </Reveal>
-            <Reveal delay={0.34}>
-              <div className="hero-meta">
-                <div>
-                  <span className="hero-meta-key">Location</span>
-                  <span className="hero-meta-val">Yaoundé · CM</span>
-                </div>
-                <div>
-                  <span className="hero-meta-key">Status</span>
-                  <span className="hero-meta-val">Open to work</span>
-                </div>
-                <div>
-                  <span className="hero-meta-key">Discipline</span>
-                  <span className="hero-meta-val">Software · AI</span>
-                </div>
-              </div>
-            </Reveal>
-          </motion.div>
-
-          <motion.div
-            className="hero-right"
-            style={{ y: portraitY, opacity: portraitOpacity }}
-          >
-            <Reveal delay={0.1}>
-              <figure className="portrait-figure">
-                <img
-                  className="portrait-xray"
-                  src="/portrait-xray.jpg?v=3"
-                  alt="Futuristic X-ray-inspired portrait of Nyuydze Banven Eric Junior — real face with subtle digital scan overlay"
-                  width="768"
-                  height="1344"
-                />
-                <figcaption className="portrait-caption">
-                  <span className="portrait-caption-num">SCN.001</span>
-                  <span className="portrait-caption-text">
-                    Subject — N. B. E. Junior / volumetric scan, bronze contour mapping
-                  </span>
-                </figcaption>
-              </figure>
-            </Reveal>
-          </motion.div>
-        </section>
-
         {/* ============================================================
             Selected work
             ============================================================ */}
