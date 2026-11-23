@@ -11,7 +11,7 @@ import { useEffect, useRef, useState } from "react";
  */
 
 const GLB_URL =
-  "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261115_071021_742152ba-5554-4270-9dc5-286bcff36a1a.glb";
+  "https://threejs.org/examples/models/gltf/LeePerrySmith/LeePerrySmith.glb";
 const THREE_URL = "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js";
 const ADDONS_BASE = "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/";
 
@@ -190,9 +190,30 @@ export default function NoaHero() {
       geo.applyMatrix4(mesh.matrixWorld);
       if (!geo.attributes.normal) geo.computeVertexNormals();
 
+      // ---- Auto-fit: center and scale the model to match the target range ----
+      // Target: x -0.75..0.75, y -0.95..0.95, z -0.42..0.42 (like the reference bust)
+      geo.computeBoundingBox();
+      const bb = geo.boundingBox!;
+      const cx = (bb.min.x + bb.max.x) / 2;
+      const cy = (bb.min.y + bb.max.y) / 2;
+      const cz = (bb.min.z + bb.max.z) / 2;
+      const sx = 1.5 / (bb.max.x - bb.min.x || 1);
+      const sy = 1.9 / (bb.max.y - bb.min.y || 1);
+      const sz = 0.84 / (bb.max.z - bb.min.z || 1);
+      const scale = Math.min(sx, sy, sz) * 0.95;
+      const posAttr = geo.attributes.position;
+      const normAttr = geo.attributes.normal;
+      for (let i = 0; i < posAttr.count; i++) {
+        const x = posAttr.getX(i);
+        const y = posAttr.getY(i);
+        const z = posAttr.getZ(i);
+        posAttr.setXYZ(i, (x - cx) * scale, (y - cy) * scale, (z - cz) * scale);
+      }
+      posAttr.needsUpdate = true;
+      geo.computeBoundingBox();
+      geo.computeBoundingSphere();
+
       // ---- Sample 330,000 candidates ----
-      const sampler = new MeshSurfaceSampler(mesh).build();
-      // Rebuild sampler on the cloned geometry
       const sampler2 = new MeshSurfaceSampler(
         new THREE.Mesh(geo, new THREE.MeshBasicMaterial())
       ).build();
@@ -215,24 +236,10 @@ export default function NoaHero() {
         candRand[i] = Math.random();
       }
 
-      // ---- Leaf candidates (part 2) ----
-      // Leaf when x > 0.13, y > 0.6 and (x-0.02)² + (z+0.06)² > 0.035
-      const leafIdx: number[] = [];
-      for (let i = 0; i < N_CANDIDATES; i++) {
-        const x = candPos[i * 3];
-        const y = candPos[i * 3 + 1];
-        const z = candPos[i * 3 + 2];
-        if (
-          x > 0.13 &&
-          y > 0.6 &&
-          (x - 0.02) * (x - 0.02) + (z + 0.06) * (z + 0.06) > 0.035
-        ) {
-          leafIdx.push(i);
-        }
-      }
-      // Keep first 60% of leaf candidates
-      const nLeaf = Math.floor(leafIdx.length * 0.6);
-      const keptLeaf = leafIdx.slice(0, nLeaf);
+      // ---- No leaf sprig or visor for the male head (clean point cloud) ----
+      const keptLeaf: number[] = [];
+      const nLeaf = 0;
+      const visorDots: { pos: number[]; norm: number[]; part: number }[] = [];
 
       // ---- Voxel thinning for bust dots ----
       const VOX = 0.022;
@@ -285,125 +292,8 @@ export default function NoaHero() {
         [pool[i], pool[j]] = [pool[j], pool[i]];
       }
 
-      // ---- Visor (parts 3 + 4) — simplified ----
-      // Build a front height map of the face
-      const faceMap = new Map<string, number>();
-      for (let i = 0; i < N_CANDIDATES; i++) {
-        const x = candPos[i * 3];
-        const y = candPos[i * 3 + 1];
-        const z = candPos[i * 3 + 2];
-        const nz = candNorm[i * 3 + 2];
-        if (nz >= 0.2 && x > -0.32 && x < 0.32 && y > 0.2 && y < 0.45) {
-          const key = (Math.round(x * 100) / 100).toFixed(2) + "," + (Math.round(y * 100) / 100).toFixed(2);
-          const prev = faceMap.get(key);
-          if (prev === undefined || z > prev) faceMap.set(key, z);
-        }
-      }
-      const faceHeight = (x: number, y: number) => {
-        let best = -1;
-        for (let dx = -1; dx <= 1; dx++) {
-          for (let dy = -1; dy <= 1; dy++) {
-            const k =
-              (Math.round((x + dx * 0.01) * 100) / 100).toFixed(2) +
-              "," +
-              (Math.round((y + dy * 0.01) * 100) / 100).toFixed(2);
-            const v = faceMap.get(k);
-            if (v !== undefined && v > best) best = v;
-          }
-        }
-        return best;
-      };
-      const W = 0.215;
-      const topEdge = (x: number) => 0.378 - 0.022 * (x / W) * (x / W);
-      const lowEdge = (x: number) =>
-        0.282 + 0.032 * Math.exp(-((x / 0.034) ** 2)) + 0.026 * (x / W) ** 4;
-      // Front = highest face height over x -0.06..0.06, y 0.30..0.36 + clearance 0.028
-      let frontBase = -1;
-      for (let i = 0; i < N_CANDIDATES; i++) {
-        const x = candPos[i * 3];
-        const y = candPos[i * 3 + 1];
-        const z = candPos[i * 3 + 2];
-        if (x > -0.06 && x < 0.06 && y > 0.3 && y < 0.36 && z > frontBase)
-          frontBase = z;
-      }
-      const front = frontBase + 0.028;
-      // wrap = smallest (front - need - 0.7*clearance)/x² over x from -W to W in 0.01 steps, |x|>=0.05
-      // need = highest face height between lower and top edges at that x
-      let wrap = 2.4;
-      for (let x = -W; x <= W; x += 0.01) {
-        if (Math.abs(x) < 0.05) continue;
-        const need = (function () {
-          let best = -1;
-          const yLo = lowEdge(x);
-          const yHi = topEdge(x);
-          for (let yy = yLo; yy <= yHi; yy += 0.005) {
-            const h = faceHeight(x, yy);
-            if (h !== undefined && h > best) best = h;
-          }
-          return best < 0 ? 0 : best;
-        })();
-        const cand = (front - need - 0.7 * 0.028) / (x * x);
-        if (cand < wrap) wrap = cand;
-      }
-      if (!isFinite(wrap) || wrap <= 0) wrap = 2.4;
-
-      const lensZ = (x: number) => front - wrap * x * x;
-      const visorDots: { pos: number[]; norm: number[]; part: number }[] = [];
-      const lensNorm = (x: number) => {
-        const nx = 2 * wrap * x;
-        const ny = 0;
-        const nz = 1;
-        const len = Math.hypot(nx, ny, nz);
-        return [nx / len, ny / len, nz / len];
-      };
-
-      // 950 top bar dots
-      for (let i = 0; i < 950; i++) {
-        const x = -W + (i / 950) * 2 * W;
-        const yJit = Math.random() * 0.016 * (1 - Math.random());
-        const y = topEdge(x) - yJit;
-        const z = lensZ(x) + 0.004;
-        visorDots.push({ pos: [x, y, z], norm: lensNorm(x), part: 2 });
-      }
-      // 380 lower edge dots
-      for (let i = 0; i < 380; i++) {
-        const x = -W + (i / 380) * 2 * W;
-        const y = lowEdge(x);
-        const z = lensZ(x) + 0.002;
-        visorDots.push({ pos: [x, y, z], norm: lensNorm(x), part: 2 });
-      }
-      // 70 at each end
-      for (let s = 0; s < 2; s++) {
-        const x = s === 0 ? -W : W;
-        for (let i = 0; i < 70; i++) {
-          const yLo = lowEdge(x);
-          const yHi = topEdge(x);
-          const y = yLo + Math.random() * (yHi - yLo);
-          const z = lensZ(x);
-          visorDots.push({ pos: [x, y, z], norm: lensNorm(x), part: 2 });
-        }
-      }
-      // 1500 lens dots
-      for (let i = 0; i < 1500; i++) {
-        const x = -W + Math.random() * 2 * W;
-        const yLo = lowEdge(x);
-        const yHi = topEdge(x);
-        const y = yLo + Math.random() * (yHi - yLo);
-        const z = lensZ(x) + (Math.random() - 0.5) * 0.004;
-        visorDots.push({ pos: [x, y, z], norm: lensNorm(x), part: 3 });
-      }
-      // 70 per side arms
-      for (let s = 0; s < 2; s++) {
-        const x0 = s === 0 ? -W : W;
-        const dir = s === 0 ? -1 : 1;
-        for (let i = 0; i < 70; i++) {
-          const t = i / 70;
-          const x = x0 + dir * 0.03 * t;
-          const z = -0.15 * t;
-          const y = topEdge(x0) - 0.008;
-          visorDots.push({ pos: [x, y, z], norm: [0, 0, 1], part: 2 });
-        }
-      }
+      // ---- No visor construction for the male head (clean point cloud) ----
+      // The visor was specific to the Noa character. All 66,000 dots are bust dots.
 
       // ---- Assemble final dot list ----
       const nVisor = visorDots.length;
@@ -540,16 +430,13 @@ export default function NoaHero() {
         thinArr[i] = Math.max(0, Math.min(1, 1 - counts[i] / (0.55 * medCount)));
       }
 
-      // ---- Find smallest/largest non-bust x for glint sweep ----
+      // ---- Find x range across ALL dots for glint sweep ----
       let glintMin = Infinity,
         glintMax = -Infinity;
       for (let i = 0; i < nFinal; i++) {
-        if (finalPart[i] !== 0) {
-          // Use model-space x = wx/2.8
-          const mx = finalPos[i * 3] / 2.8;
-          if (mx < glintMin) glintMin = mx;
-          if (mx > glintMax) glintMax = mx;
-        }
+        const mx = finalPos[i * 3] / 2.8;
+        if (mx < glintMin) glintMin = mx;
+        if (mx > glintMax) glintMax = mx;
       }
       if (!isFinite(glintMin)) {
         glintMin = -0.2;
@@ -618,7 +505,7 @@ export default function NoaHero() {
           if (aPart > 1.5) b *= 0.78;
           if (aPart > 2.5) b *= 0.7;
           b *= 0.7 + r2 * 0.5;
-          if (aPart > 0.5) {
+          {
             float glint = smoothstep(0.09, 0., abs(home.x - uGlint));
             b += glint * 1.2;
           }
@@ -630,8 +517,7 @@ export default function NoaHero() {
           gl_Position = projectionMatrix * mv;
           vec3 ink = uInk;
           ink = mix(ink, uCream, shine * 0.6);
-          if (aPart > 2.5) ink = mix(ink, uBlue, 0.6);
-          if (aPart > 0.5) {
+          {
             float glint = smoothstep(0.09, 0., abs(home.x - uGlint));
             ink = mix(ink, uBlue, glint * 0.7);
           }
