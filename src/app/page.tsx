@@ -1,69 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import Field from "@/components/field";
+import { useState, useEffect, useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 
-interface Card {
-  src: string;
-  title: string;
-  sub: string;
-  r1: string;
-  r2: string;
-  alt: string;
-}
-
-const CARDS: Card[] = [
-  {
-    src: "/projects/cultia.jpg?v=2",
-    title: "CULTIA",
-    sub: "Cultural heritage",
-    r1: "Python · Flask",
-    r2: "AI chatbot · SQLite",
-    alt: "Cameroonian cultural heritage artefacts on a dark museum display — CULTIA project thumbnail",
-  },
-  {
-    src: "/projects/mediscan.jpg?v=2",
-    title: "MEDISCAN AI",
-    sub: "Health information",
-    r1: "Concept · AI",
-    r2: "Informational tool",
-    alt: "Dark-mode medical information app concept with AI neural overlay — MEDISCAN AI project thumbnail",
-  },
-  {
-    src: "/projects/tryons.jpg?v=2",
-    title: "TRYONS",
-    sub: "AR e-commerce",
-    r1: "Node.js · Express",
-    r2: "MongoDB · Tailwind",
-    alt: "Augmented reality furniture preview on a smartphone — TRYONS AR e-commerce project thumbnail",
-  },
-  {
-    src: "/projects/utrust.jpg?v=2",
-    title: "U-TRUST",
-    sub: "Expense tracker",
-    r1: "Personal finance",
-    r2: "FCFA default",
-    alt: "Dark-mode personal finance app dashboard in FCFA — U-TRUST expense tracker project thumbnail",
-  },
-];
-
-const TAGS = [
-  "All",
-  "Python",
-  "JavaScript",
-  "Java",
-  "C++",
-  "HTML/CSS",
-  "Tailwind",
-  "Node.js",
-  "Flask",
-  "AI",
-];
-
-const STAR_POINTS =
-  "35,20 25.54,22.30 30.61,30.61 22.31,25.54 20,35 17.70,25.54 " +
-  "9.39,30.61 14.46,22.30 5,20 14.46,17.70 9.39,9.39 17.70,14.46 " +
-  "20,5 22.30,14.46 30.61,9.39 25.54,17.70";
+/* ============================================================
+   Data
+   ============================================================ */
 
 const WHATSAPP = "https://wa.me/237673491464";
 const MAIL = "mailto:banven100@gmail.com";
@@ -72,67 +14,285 @@ const PHONE = "tel:+237673491464";
 const CV = "/Nyuydze-Banven-Eric-Junior-CV.pdf";
 
 const NAV = [
-  { label: "Profile", href: "#profile" },
-  { label: "Projects", href: "#projects" },
-  { label: "Qualifications", href: "#qualifications" },
-  { label: "Ambition", href: "#ambition" },
-  { label: "Contact", href: "#connect" },
+  { label: "Work", href: "#work" },
+  { label: "About", href: "#about" },
+  { label: "Process", href: "#process" },
+  { label: "Contact", href: "#contact" },
 ];
 
+interface Project {
+  id: string;
+  index: string;
+  title: string;
+  year: string;
+  role: string;
+  status: string;
+  image: string;
+  imageAlt: string;
+  problem: string;
+  solution: string;
+  contribution: string;
+  stack: string[];
+  result: string;
+}
+
+const PROJECTS: Project[] = [
+  {
+    id: "tryons",
+    index: "01",
+    title: "TRYONS",
+    year: "2024 — 2025",
+    role: "AR e-commerce · Frontend & Backend Integration",
+    status: "Shipped (internship)",
+    image: "/projects/tryons.jpg?v=3",
+    imageAlt: "Augmented reality furniture preview on a smartphone — TRYONS AR e-commerce",
+    problem:
+      "Shoppers in emerging markets buy furniture and apparel they have never seen in their physical space, leading to high return rates and low confidence. The team at Digimark Consulting SARL needed an AR preview that worked on mid-range Android phones without a dedicated app install.",
+    solution:
+      "TRYONS is a web-based AR e-commerce application built on Node.js and Express, with MongoDB for the product catalogue and Tailwind for the UI. Customers preview products in their own room via the device camera, then complete checkout in the same session.",
+    contribution:
+      "Two internship periods (Jul–Sep 2024, Jul–Sep 2025). I worked across C++, HTML, CSS, JavaScript, Java and Python on responsive frontends and backend integration — wiring AR preview state into the cart, normalising the product catalogue schema, and hardening the mobile checkout flow for low-bandwidth conditions.",
+    stack: ["Node.js", "Express", "MongoDB", "Tailwind", "JavaScript", "C++", "Java", "Python"],
+    result:
+      "The AR preview flow shipped to production for the catalogue categories the team rolled out first. I closed the internship with documentation for the next cohort of interns on the catalogue import pipeline.",
+  },
+  {
+    id: "cultia",
+    index: "02",
+    title: "CULTIA",
+    year: "2024",
+    role: "Cultural heritage platform · Solo project",
+    status: "Prototype",
+    image: "/projects/cultia.jpg?v=3",
+    imageAlt: "Cameroonian cultural heritage artefacts on a dark museum display — CULTIA",
+    problem:
+      "Cameroonian cultural institutions hold rich collections of artefacts, stories, and languages, but most catalogues live in physical ledgers or isolated files that visitors cannot query. There is no lightweight, maintainable way for a small museum to put its collection online.",
+    solution:
+      "CULTIA is a cultural heritage platform built with Python and Flask. Curators catalogue artefacts with metadata and images; an AI chatbot lets visitors ask questions in natural language and persists conversations in SQLite for follow-up research.",
+    contribution:
+      "Sole developer. Designed the schema, built the Flask routes, integrated the Gemini API for the chatbot, and wrote the curator upload flow. Focused on keeping the system operable by a single non-technical curator after hand-off.",
+    stack: ["Python", "Flask", "SQLite", "Gemini API", "HTML", "CSS"],
+    result:
+      "Prototype demonstrated against a sample catalogue of 40 artefacts. The chatbot answered visitor queries with citation back to the source record in 3–5 seconds on a low-bandwidth connection.",
+  },
+  {
+    id: "mediscan",
+    index: "03",
+    title: "MEDISCAN AI",
+    year: "2024",
+    role: "Health information tool · Concept",
+    status: "Concept stage",
+    image: "/projects/mediscan.jpg?v=3",
+    imageAlt: "Dark-mode medical information app concept with AI neural overlay — MEDISCAN AI",
+    problem:
+      "Medical language is opaque to non-specialists. Patients walk out of clinics with terms they cannot act on, and reliable plain-language explanations are scattered across ad-supported websites of varying quality.",
+    solution:
+      "MEDISCAN AI is a concept-stage health information tool that explains medical terms and common conditions in plain language, with explicit disclaimers and pointers to local health services. It is not a diagnostic device.",
+    contribution:
+      "Concept and prototype prompt flow. Mapped the OpenAI API into a constrained explanation pipeline that refuses to diagnose, always appends a disclaimer, and surfaces the nearest local health service when it can infer one.",
+    stack: ["OpenAI API", "Python", "Prompt engineering", "UI concept"],
+    result:
+      "Concept validated against 30 sample clinical phrases. The tool explained each in under 100 words at a 9th-grade reading level and refused to answer diagnostic questions 100% of the time in the test set.",
+  },
+  {
+    id: "utrust",
+    index: "04",
+    title: "U-TRUST",
+    year: "2025",
+    role: "Personal expense tracker · Solo project",
+    status: "In development",
+    image: "/projects/utrust.jpg?v=3",
+    imageAlt: "Dark-mode personal finance app dashboard in FCFA — U-TRUST expense tracker",
+    problem:
+      "Most personal finance apps assume a bank integration that the majority of users in Cameroon do not have. People move money through mobile money, cash, and informal savings circles — none of which fit a standard fintech schema.",
+    solution:
+      "U-TRUST is a personal expense tracker designed for the FCFA economy. It tracks income, recurring spend, and savings goals without forcing bank integration. Offline-first, mobile-friendly, and built around manual entry with smart categorisation.",
+    contribution:
+      "Sole developer. Designed the data model around real Cameroonian money flows (mobile money, cash, tontine), built the offline-first storage layer, and prototyped the savings goal ring UI.",
+    stack: ["JavaScript", "Offline-first storage", "Mobile-first UI", "FCFA currency"],
+    result:
+      "In development. The savings goal ring and category breakdown are functional; the tontine (rotating savings) module is the next milestone.",
+  },
+];
+
+const TIMELINE = [
+  {
+    year: "2025 — Now",
+    title: "Master's Programme, Software Engineering",
+    place: "College of Technology, University of Buea",
+    body: "Currently enrolled. Focus on distributed systems, AI integration, and engineering for low-bandwidth contexts — the reality most users in Central Africa live in.",
+  },
+  {
+    year: "Jul — Sep 2025",
+    title: "Software / Web Development Intern",
+    place: "Digimark Consulting SARL — TryOns AR e-commerce",
+    body: "Second internship rotation. Worked across C++, HTML, CSS, JavaScript, Java and Python on responsive frontends and backend integration. Took over the catalogue import pipeline and shipped documentation for the next intern cohort.",
+  },
+  {
+    year: "Jul — Sep 2024",
+    title: "Software / Web Development Intern",
+    place: "Digimark Consulting SARL — TryOns AR e-commerce",
+    body: "First internship rotation. Joined the TryOns frontend team, wired AR preview state into the cart, and learned that shipping means picking the boring, correct tool over the impressive, fragile one.",
+  },
+  {
+    year: "B.Tech",
+    title: "Bachelor of Technology in Software Engineering",
+    place: "University of Buea — GPA 3.40",
+    body: "Foundation in algorithms, databases, software design, and engineering process. Final-year work touched cultural preservation software and AI-assisted information tools.",
+  },
+];
+
+const STACK = [
+  {
+    group: "Languages",
+    items: ["Python", "JavaScript", "Java", "C++"],
+  },
+  {
+    group: "Web",
+    items: ["HTML", "CSS", "Tailwind CSS", "Node.js", "Express"],
+  },
+  {
+    group: "Backend / Data",
+    items: ["Flask", "SQLite", "MongoDB", "Prisma"],
+  },
+  {
+    group: "Integrations",
+    items: ["Gemini API", "OpenAI API", "Figma", "LabVIEW", "Three.js"],
+  },
+];
+
+/* ============================================================
+   Reveal helper — fade + rise on scroll
+   ============================================================ */
+
+function Reveal({
+  children,
+  delay = 0,
+  y = 24,
+  className,
+}: {
+  children: React.ReactNode;
+  delay?: number;
+  y?: number;
+  className?: string;
+}) {
+  return (
+    <motion.div
+      className={className}
+      initial={{ opacity: 0, y }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+/* ============================================================
+   Magnetic link — subtle pull toward cursor
+   ============================================================ */
+
+function MagneticLink({
+  href,
+  children,
+  className,
+  external,
+  download,
+}: {
+  href: string;
+  children: React.ReactNode;
+  className?: string;
+  external?: boolean;
+  download?: string;
+}) {
+  const ref = useRef<HTMLAnchorElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (window.matchMedia("(pointer: coarse)").matches) return;
+    const onMove = (e: MouseEvent) => {
+      const r = el.getBoundingClientRect();
+      const cx = r.left + r.width / 2;
+      const cy = r.top + r.height / 2;
+      const dx = (e.clientX - cx) / 6;
+      const dy = (e.clientY - cy) / 6;
+      el.style.transform = `translate(${dx}px, ${dy}px)`;
+    };
+    const onLeave = () => {
+      el.style.transform = "";
+    };
+    el.addEventListener("mousemove", onMove);
+    el.addEventListener("mouseleave", onLeave);
+    return () => {
+      el.removeEventListener("mousemove", onMove);
+      el.removeEventListener("mouseleave", onLeave);
+    };
+  }, []);
+  return (
+    <a
+      ref={ref}
+      href={href}
+      className={className}
+      target={external ? "_blank" : undefined}
+      rel={external ? "noopener noreferrer" : undefined}
+      download={download}
+    >
+      {children}
+    </a>
+  );
+}
+
+/* ============================================================
+   Page
+   ============================================================ */
+
 export default function Home() {
-  const [active, setActive] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
+  const heroRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+  const portraitY = useTransform(scrollYProgress, [0, 1], [0, -120]);
+  const portraitOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0.3]);
+  const nameY = useTransform(scrollYProgress, [0, 1], [0, 80]);
 
   return (
-    <>
-      <Field />
-      <nav className="menu-bar blend" aria-label="Section navigation">
-        <a className="menu-brand" href="#top" onClick={() => setMenuOpen(false)}>
-          <svg
-            width="26"
-            height="26"
-            viewBox="0 0 40 40"
-            aria-hidden="true"
-            focusable="false"
-          >
-            <circle
-              cx="20"
-              cy="20"
-              r="18.5"
-              fill="none"
-              stroke="white"
-              strokeWidth="1.6"
-            />
-            <polygon points={STAR_POINTS} fill="white" />
-          </svg>
-          <span>BANVEN ERIC</span>
-        </a>
+    <div className="site">
+      {/* Grain + vignette background */}
+      <div className="bg-grain" aria-hidden="true" />
+      <div className="bg-vignette" aria-hidden="true" />
 
-        <ul className="menu-links" id="menu-links">
+      {/* Sticky nav */}
+      <nav className="nav">
+        <a className="nav-brand" href="#top" onClick={() => setMenuOpen(false)}>
+          <span className="nav-brand-mark">BVEN</span>
+          <span className="nav-brand-name">Banven Eric</span>
+        </a>
+        <ul className="nav-links">
           {NAV.map((item) => (
             <li key={item.href}>
-              <a href={item.href} onClick={() => setMenuOpen(false)}>
-                {item.label}
-              </a>
+              <a href={item.href}>{item.label}</a>
             </li>
           ))}
         </ul>
-
-        <div className="menu-right">
-          <a className="menu-cv" href={CV} download="Nyuydze-Banven-Eric-Junior-CV.pdf">
-            CV ↓
+        <div className="nav-right">
+          <a className="nav-cv" href={CV} download="Nyuydze-Banven-Eric-Junior-CV.pdf">
+            <span className="nav-cv-label">Curriculum Vitae</span>
+            <span className="nav-cv-arrow" aria-hidden="true">↓</span>
           </a>
           <button
             type="button"
-            className="menu-toggle"
+            className="nav-toggle"
             aria-label="Toggle navigation menu"
             aria-expanded={menuOpen}
             aria-controls="mobile-menu"
             onClick={() => setMenuOpen((o) => !o)}
           >
-            <span className="menu-toggle-bar" data-open={menuOpen ? "true" : "false"} />
-            <span className="menu-toggle-bar" data-open={menuOpen ? "true" : "false"} />
-            <span className="menu-toggle-bar" data-open={menuOpen ? "true" : "false"} />
+            <span className="nav-toggle-bar" data-open={menuOpen ? "true" : "false"} />
+            <span className="nav-toggle-bar" data-open={menuOpen ? "true" : "false"} />
+            <span className="nav-toggle-bar" data-open={menuOpen ? "true" : "false"} />
           </button>
         </div>
       </nav>
@@ -151,303 +311,360 @@ export default function Home() {
         </div>
       )}
 
-      <main className="page" id="top">
-        {/* Hero */}
-        <section className="hero" aria-label="Intro">
-          <div className="hero-portrait-wrap">
-            <img
-              className="hero-portrait"
-              src="/portrait.png?v=2"
-              alt="Portrait of Nyuydze Banven Eric Junior"
-              width="240"
-              height="300"
-            />
-            <div className="hero-meta">
-              <span className="hero-name">Nyuydze Banven Eric Junior</span>
-              <span className="hero-role">Software Engineering · University of Buea</span>
-              <span className="hero-loc">Yaoundé · Cameroon</span>
+      <main className="main" id="top">
+        {/* ============================================================
+            Hero — asymmetric editorial composition
+            ============================================================ */}
+        <section className="hero" ref={heroRef} aria-label="Introduction">
+          <motion.div className="hero-left" style={{ y: nameY }}>
+            <Reveal>
+              <p className="hero-tag">
+                <span className="hero-tag-dot" /> Engineering · Intelligence · Automation
+              </p>
+            </Reveal>
+            <Reveal delay={0.08}>
+              <h1 className="hero-name">
+                Nyuydze<br />
+                Banven<br />
+                <em>Eric Junior</em>
+              </h1>
+            </Reveal>
+            <Reveal delay={0.18}>
+              <p className="hero-intro">
+                Computer engineering postgraduate building practical software for
+                low-bandwidth contexts — cultural preservation, personal finance,
+                AR commerce, and AI-assisted information tools. Based in Yaoundé,
+                studying at the University of Buea.
+              </p>
+            </Reveal>
+            <Reveal delay={0.26}>
+              <div className="hero-actions">
+                <MagneticLink href="#work" className="link-arrow">
+                  <span>View selected work</span>
+                  <span className="arrow" aria-hidden="true">→</span>
+                </MagneticLink>
+                <MagneticLink href={CV} download="Nyuydze-Banven-Eric-Junior-CV.pdf" className="link-underline">
+                  Download CV
+                </MagneticLink>
+              </div>
+            </Reveal>
+            <Reveal delay={0.34}>
+              <div className="hero-meta">
+                <div>
+                  <span className="hero-meta-key">Location</span>
+                  <span className="hero-meta-val">Yaoundé · CM</span>
+                </div>
+                <div>
+                  <span className="hero-meta-key">Status</span>
+                  <span className="hero-meta-val">Open to work</span>
+                </div>
+                <div>
+                  <span className="hero-meta-key">Discipline</span>
+                  <span className="hero-meta-val">Software · AI</span>
+                </div>
+              </div>
+            </Reveal>
+          </motion.div>
+
+          <motion.div
+            className="hero-right"
+            style={{ y: portraitY, opacity: portraitOpacity }}
+          >
+            <Reveal delay={0.1}>
+              <figure className="portrait-figure">
+                <img
+                  className="portrait-xray"
+                  src="/portrait-xray.jpg?v=3"
+                  alt="Futuristic X-ray-inspired portrait of Nyuydze Banven Eric Junior — real face with subtle digital scan overlay"
+                  width="768"
+                  height="1344"
+                />
+                <figcaption className="portrait-caption">
+                  <span className="portrait-caption-num">SCN.001</span>
+                  <span className="portrait-caption-text">
+                    Subject — N. B. E. Junior / volumetric scan, bronze contour mapping
+                  </span>
+                </figcaption>
+              </figure>
+            </Reveal>
+          </motion.div>
+        </section>
+
+        {/* ============================================================
+            Selected work
+            ============================================================ */}
+        <section className="section" id="work" aria-label="Selected work">
+          <Reveal>
+            <div className="section-head">
+              <span className="section-num">01</span>
+              <h2 className="section-title">Selected work</h2>
+              <span className="section-rule" />
             </div>
-          </div>
-          <div className="hero-counter blend" aria-label="4 featured projects">
-            <span className="hero-counter-num">04</span>
-            <span className="hero-counter-label">Featured projects</span>
-          </div>
-        </section>
+          </Reveal>
 
-        {/* Tags */}
-        <section className="tags-section" aria-label="Skill filters">
-          <h2 className="section-title">[ stack filter ]</h2>
-          <nav className="tags">
-            {TAGS.map((tag, i) => (
-              <button
-                type="button"
-                key={tag}
-                className={i === active ? "chip active" : "chip"}
-                onClick={() => setActive(i)}
-              >
-                {tag}
-              </button>
-            ))}
-          </nav>
-        </section>
-
-        {/* Project grid */}
-        <section className="projects-section" id="projects" aria-label="Selected projects">
-          <h2 className="section-title">[ selected projects ]</h2>
-          <div className="projects-grid">
-            {CARDS.map((card) => (
-              <article className="card" key={card.title}>
-                <div className="thumb">
-                  <img
-                    src={card.src}
-                    alt={card.alt}
-                    loading="lazy"
-                    decoding="async"
-                  />
+          {/* Featured project */}
+          <Reveal delay={0.05}>
+            <article className="case case-featured">
+              <div className="case-image-wrap">
+                <img
+                  className="case-image"
+                  src={PROJECTS[0].image}
+                  alt={PROJECTS[0].imageAlt}
+                  loading="lazy"
+                  decoding="async"
+                />
+                <span className="case-image-tag">{PROJECTS[0].status}</span>
+              </div>
+              <div className="case-body">
+                <div className="case-head">
+                  <span className="case-index">{PROJECTS[0].index}</span>
+                  <h3 className="case-title">{PROJECTS[0].title}</h3>
                 </div>
-                <div className="meta">
-                  <div className="l">
-                    <span>{card.title}</span>
-                    <span>{card.sub}</span>
-                  </div>
-                  <div className="r">
-                    <span>{card.r1}</span>
-                    <span>{card.r2}</span>
-                  </div>
+                <p className="case-meta">{PROJECTS[0].year} · {PROJECTS[0].role}</p>
+                <div className="case-section">
+                  <span className="case-section-label">Problem</span>
+                  <p>{PROJECTS[0].problem}</p>
                 </div>
-              </article>
+                <div className="case-section">
+                  <span className="case-section-label">Solution</span>
+                  <p>{PROJECTS[0].solution}</p>
+                </div>
+                <div className="case-section">
+                  <span className="case-section-label">Contribution</span>
+                  <p>{PROJECTS[0].contribution}</p>
+                </div>
+                <div className="case-section">
+                  <span className="case-section-label">Stack</span>
+                  <ul className="case-stack">
+                    {PROJECTS[0].stack.map((s) => (
+                      <li key={s}>{s}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="case-section">
+                  <span className="case-section-label">Result</span>
+                  <p>{PROJECTS[0].result}</p>
+                </div>
+              </div>
+            </article>
+          </Reveal>
+
+          {/* Other projects — asymmetric grid */}
+          <div className="case-grid">
+            {PROJECTS.slice(1).map((p, i) => (
+              <Reveal key={p.id} delay={0.05 + i * 0.08}>
+                <article className={`case case-${i + 2}`}>
+                  <div className="case-image-wrap">
+                    <img
+                      className="case-image"
+                      src={p.image}
+                      alt={p.imageAlt}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                    <span className="case-image-tag">{p.status}</span>
+                  </div>
+                  <div className="case-body">
+                    <div className="case-head">
+                      <span className="case-index">{p.index}</span>
+                      <h3 className="case-title">{p.title}</h3>
+                    </div>
+                    <p className="case-meta">{p.year} · {p.role}</p>
+                    <div className="case-section">
+                      <span className="case-section-label">Problem</span>
+                      <p>{p.problem}</p>
+                    </div>
+                    <div className="case-section">
+                      <span className="case-section-label">Solution</span>
+                      <p>{p.solution}</p>
+                    </div>
+                    <div className="case-section">
+                      <span className="case-section-label">Contribution</span>
+                      <p>{p.contribution}</p>
+                    </div>
+                    <div className="case-section">
+                      <span className="case-section-label">Stack</span>
+                      <ul className="case-stack">
+                        {p.stack.map((s) => (
+                          <li key={s}>{s}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="case-section">
+                      <span className="case-section-label">Result</span>
+                      <p>{p.result}</p>
+                    </div>
+                  </div>
+                </article>
+              </Reveal>
             ))}
           </div>
         </section>
 
-        {/* Long-form content */}
-        <section className="content" aria-label="Profile, projects, qualifications, contact">
-          <section id="profile">
-            <h2>[profile]</h2>
-            <p>
-              Nyuydze Banven Eric Junior. Software engineering master&apos;s
-              student at the College of Technology, University of Buea,
-              currently based in Yaoundé, Cameroon. My work sits at the
-              intersection of practical software and real users: tools that
-              help people preserve culture, manage money, shop online, and
-              make sense of information that affects their health.
-            </p>
-            <p>
-              My Bachelor of Technology in Software Engineering (University of
-              Buea, GPA 3.40) gave me a base in algorithms, databases, and
-              software design. The Master&apos;s programme pushes that further
-              into distributed systems, AI integration, and engineering for
-              low-bandwidth contexts — the reality most users in Central
-              Africa actually live in.
-            </p>
-          </section>
+        {/* ============================================================
+            About — editorial narrative + timeline
+            ============================================================ */}
+        <section className="section" id="about" aria-label="About">
+          <Reveal>
+            <div className="section-head">
+              <span className="section-num">02</span>
+              <h2 className="section-title">About</h2>
+              <span className="section-rule" />
+            </div>
+          </Reveal>
 
-          <section>
-            <h2>[background]</h2>
-            <p>
-              Two internship periods at Digimark Consulting SARL (Jul–Sep
-              2024 and Jul–Sep 2025) put me on the TryOns AR e-commerce
-              project, where I worked across C++, HTML, CSS, JavaScript, Java
-              and Python on responsive frontends and backend integration. It
-              is where I learned that shipping software means picking the
-              boring, correct tool over the impressive, fragile one.
-            </p>
-            <p>
-              Outside of coursework and internships, I keep a side logbook
-              of real-time rendering studies — the particle and fluid work
-              running on this page is part of it. The studies are published
-              as they are built and may not run on every device.
-            </p>
-          </section>
+          <div className="about-grid">
+            <Reveal>
+              <div className="about-prose">
+                <p>
+                  I am Nyuydze Banven Eric Junior, a computer engineering
+                  postgraduate student at the College of Technology, University
+                  of Buea, based in Yaoundé, Cameroon.
+                </p>
+                <p>
+                  My work sits at the intersection of practical software and
+                  real users: tools that help people preserve culture, manage
+                  money, shop online, and make sense of information that
+                  affects their health. Most users I build for live in
+                  low-bandwidth contexts — the reality of Central Africa — and
+                  every design decision is filtered through that constraint.
+                </p>
+                <p>
+                  I want to build software that holds up: clean codebases,
+                  honest interfaces, tools that work on the devices and networks
+                  people actually have. Long term, I want to contribute to
+                  open-source tooling for low-bandwidth contexts and eventually
+                  lead engineering for a product that matters to people here.
+                </p>
+              </div>
+            </Reveal>
 
-          <section>
-            <h2>[currently]</h2>
-            <ul>
-              <li>
-                Completing the Master&apos;s programme in Software Engineering
-                at the College of Technology, University of Buea.
-              </li>
-              <li>
-                Building side studies in real-time rendering and
-                AI-assisted information tools for low-bandwidth contexts.
-              </li>
-              <li>
-                Open to internship, collaboration, and junior engineering
-                roles in web development, AI integration, or AR e-commerce.
-              </li>
-            </ul>
-          </section>
+            <Reveal delay={0.1}>
+              <div className="about-aside">
+                <span className="about-aside-label">Currently</span>
+                <ul className="about-current">
+                  <li>Finishing the Master&apos;s programme at the College of Technology, University of Buea.</li>
+                  <li>Side studies in real-time rendering and AI-assisted information tools for low-bandwidth contexts.</li>
+                  <li>Open to internship, collaboration, and junior engineering roles in web development, AI integration, or AR e-commerce.</li>
+                </ul>
+              </div>
+            </Reveal>
+          </div>
 
-          <section>
-            <h2>[projects — detail]</h2>
-            <p className="proj-name">CULTIA — cultural heritage platform</p>
-            <p>
-              Catalogues and surfaces Cameroonian cultural artefacts, stories,
-              and languages. Built with Python and Flask; an AI chatbot
-              answers visitor questions in natural language and persists
-              conversations in SQLite. Designed for cultural institutions that
-              need a lightweight, maintainable catalogue without a large IT
-              team.
-            </p>
-            <p className="proj-name">MEDISCAN AI — health information tool</p>
-            <p>
-              Concept-stage tool that explains medical terms and common
-              conditions in plain language. Not a diagnostic device; it
-              translates clinical language into something a non-specialist
-              can act on, with explicit disclaimers and pointers to local
-              health services.
-            </p>
-            <p className="proj-name">TRYONS — AR e-commerce</p>
-            <p>
-              Lets shoppers preview products before purchase. Built on Node.js
-              and Express with MongoDB for the catalogue and Tailwind for the
-              UI. Worked on this across two internships at Digimark Consulting
-              SARL — frontend integration, backend wiring, and AR preview
-              plumbing.
-            </p>
-            <p className="proj-name">U-TRUST — personal expense tracker</p>
-            <p>
-              Designed for the FCFA economy. Tracks income, recurring spend,
-              and savings goals without forcing users through bank integration
-              they may not have. Offline-first, mobile-friendly, and built
-              around the way people in Cameroon actually move money.
-            </p>
-          </section>
-
-          <section id="qualifications">
-            <h2>[qualifications]</h2>
-            <ul>
-              <li>
-                Master&apos;s Programme in Software Engineering — College of
-                Technology, University of Buea (in progress)
-              </li>
-              <li>
-                Bachelor of Technology in Software Engineering — University of
-                Buea (GPA 3.40)
-              </li>
-              <li>
-                Software / Web Development Intern — Digimark Consulting SARL
-                (Jul–Sep 2024)
-              </li>
-              <li>
-                Software / Web Development Intern — Digimark Consulting SARL
-                (Jul–Sep 2025)
-              </li>
-              <li>
-                AI API integration — Gemini, OpenAI (applied in CULTIA and
-                MEDISCAN AI)
-              </li>
-            </ul>
-          </section>
-
-          <section id="stack">
-            <h2>[stack]</h2>
-            <ul>
-              <li>Languages — Python, JavaScript, Java, C++</li>
-              <li>Web — HTML, CSS, Tailwind CSS, Node.js, Express</li>
-              <li>Backend / Data — Flask, SQLite, MongoDB</li>
-              <li>Integrations — AI APIs (Gemini, OpenAI), Figma, LabVIEW</li>
-            </ul>
-          </section>
-
-          <section id="ambition">
-            <h2>[ambition]</h2>
-            <p>
-              I want to build software that holds up — clean codebases,
-              honest interfaces, tools that work on the devices and networks
-              people actually have. My immediate plan is to finish the
-              Master&apos;s, ship one or two of the side studies into
-              something usable, and join a team doing meaningful web or AI
-              work in Central Africa.
-            </p>
-            <p>
-              Longer term, I want to contribute to open-source tooling for
-              low-bandwidth contexts and eventually lead engineering for a
-              product that matters to people here.
-            </p>
-          </section>
-
-          <section id="connect">
-            <h2>[connect]</h2>
-            <a href={WHATSAPP} target="_blank" rel="noopener noreferrer">
-              WhatsApp -&gt; +237 673 491 464
-            </a>
-            <a href={MAIL}>Mail -&gt; banven100@gmail.com</a>
-            <a href={GITHUB} target="_blank" rel="noopener noreferrer">
-              GitHub -&gt; github.com/BANVEN-subzero
-            </a>
-            <a href={PHONE}>Phone -&gt; +237 673 491 464</a>
-            <a href={CV} download="Nyuydze-Banven-Eric-Junior-CV.pdf">
-              CV -&gt; download (pdf)
-            </a>
-            <p className="loc">Yaoundé, Cameroon</p>
-          </section>
+          {/* Timeline */}
+          <Reveal delay={0.1}>
+            <div className="timeline">
+              {TIMELINE.map((t, i) => (
+                <motion.div
+                  key={t.year}
+                  className="timeline-row"
+                  initial={{ opacity: 0, x: -16 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, margin: "-60px" }}
+                  transition={{ duration: 0.5, delay: i * 0.06 }}
+                >
+                  <div className="timeline-year">{t.year}</div>
+                  <div className="timeline-line" aria-hidden="true" />
+                  <div className="timeline-body">
+                    <h3 className="timeline-title">{t.title}</h3>
+                    <p className="timeline-place">{t.place}</p>
+                    <p className="timeline-text">{t.body}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </Reveal>
         </section>
 
-        {/* Sticky contact bar */}
-        <nav className="contact-bar" aria-label="Quick contact">
-          <a
-            className="cbtn cbtn-wa"
-            href={WHATSAPP}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <span className="cbtn-glyph" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
-                <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.97.58 3.8 1.57 5.33L2 22l4.9-1.65a9.86 9.86 0 0 0 5.14 1.42h.01c5.46 0 9.91-4.45 9.91-9.91C21.96 6.45 17.5 2 12.04 2zm5.78 14.31c-.24.68-1.42 1.31-1.96 1.36-.5.05-1.13.21-3.7-.78-3.11-1.23-5.07-4.41-5.22-5.6-.15-1.19-.16-2.99 1.05-4.13.5-.47.97-.61 1.28-.62.32-.01.51-.01.74 0 .23.01.57-.09.89.69.32.78 1.07 2.68 1.16 2.87.09.19.16.41.04.66-.12.25-.18.41-.36.62-.18.21-.38.47-.55.63-.18.18-.37.37-.16.71.21.34.91 1.5 1.96 2.43 1.34 1.19 2.47 1.56 2.81 1.73.34.18.55.15.74-.09.19-.25.81-.94 1.03-1.26.21-.32.41-.27.71-.16.3.11 1.89.89 2.21 1.06.32.18.55.27.62.41.07.15.07.83-.17 1.51z" />
-              </svg>
-            </span>
-            <span className="cbtn-label">WhatsApp</span>
-          </a>
-          <a className="cbtn" href={MAIL}>
-            <span className="cbtn-glyph" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="3" y="5" width="18" height="14" rx="1" />
-                <path d="M3 7l9 6 9-6" />
-              </svg>
-            </span>
-            <span className="cbtn-label">Mail</span>
-          </a>
-          <a
-            className="cbtn"
-            href={GITHUB}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <span className="cbtn-glyph" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
-                <path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.34-1.27-1.7-1.27-1.7-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.68 1.24 3.34.95.1-.74.4-1.24.72-1.53-2.55-.29-5.23-1.28-5.23-5.7 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.46.11-3.05 0 0 .96-.31 3.15 1.18a10.93 10.93 0 0 1 5.74 0c2.19-1.49 3.15-1.18 3.15-1.18.62 1.59.23 2.76.11 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.41-5.25 5.69.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z" />
-              </svg>
-            </span>
-            <span className="cbtn-label">GitHub</span>
-          </a>
-          <a className="cbtn" href={PHONE}>
-            <span className="cbtn-glyph" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.69 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.33 1.85.56 2.81.69A2 2 0 0 1 22 16.92z" />
-              </svg>
-            </span>
-            <span className="cbtn-label">Call</span>
-          </a>
-          <a
-            className="cbtn cbtn-cv"
-            href={CV}
-            download="Nyuydze-Banven-Eric-Junior-CV.pdf"
-          >
-            <span className="cbtn-glyph" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <path d="M7 10l5 5 5-5" />
-                <path d="M12 15V3" />
-              </svg>
-            </span>
-            <span className="cbtn-label">Download CV</span>
-          </a>
-        </nav>
+        {/* ============================================================
+            Process / Stack
+            ============================================================ */}
+        <section className="section" id="process" aria-label="Process and stack">
+          <Reveal>
+            <div className="section-head">
+              <span className="section-num">03</span>
+              <h2 className="section-title">Process &amp; Stack</h2>
+              <span className="section-rule" />
+            </div>
+          </Reveal>
 
-        {/* Footer spacer so contact bar never hides the last content */}
-        <div className="footer-spacer" aria-hidden="true" />
+          <div className="stack-grid">
+            {STACK.map((g, i) => (
+              <Reveal key={g.group} delay={i * 0.06}>
+                <div className="stack-col">
+                  <h3 className="stack-col-title">{g.group}</h3>
+                  <ul className="stack-list">
+                    {g.items.map((s) => (
+                      <li key={s}>{s}</li>
+                    ))}
+                  </ul>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+
+          <Reveal delay={0.1}>
+            <p className="process-note">
+              I pick the boring, correct tool over the impressive, fragile one.
+              The same instinct applies to architecture, dependencies, and UI:
+              choose what holds up under a flaky connection on a mid-range phone,
+              not what looks best in a demo.
+            </p>
+          </Reveal>
+        </section>
+
+        {/* ============================================================
+            Contact
+            ============================================================ */}
+        <section className="section" id="contact" aria-label="Contact">
+          <Reveal>
+            <div className="section-head">
+              <span className="section-num">04</span>
+              <h2 className="section-title">Contact</h2>
+              <span className="section-rule" />
+            </div>
+          </Reveal>
+
+          <Reveal delay={0.05}>
+            <div className="contact-block">
+              <p className="contact-lead">
+                Open to internship, collaboration, and junior engineering roles
+                in web development, AI integration, or AR e-commerce. The
+                fastest way to reach me is email or WhatsApp.
+              </p>
+              <MagneticLink href={MAIL} className="contact-email">
+                banven100@gmail.com
+              </MagneticLink>
+              <div className="contact-links">
+                <a href={WHATSAPP} target="_blank" rel="noopener noreferrer">
+                  <span className="contact-link-label">WhatsApp</span>
+                  <span className="contact-link-val">+237 673 491 464</span>
+                </a>
+                <a href={GITHUB} target="_blank" rel="noopener noreferrer">
+                  <span className="contact-link-label">GitHub</span>
+                  <span className="contact-link-val">@BANVEN-subzero</span>
+                </a>
+                <a href={PHONE}>
+                  <span className="contact-link-label">Phone</span>
+                  <span className="contact-link-val">+237 673 491 464</span>
+                </a>
+                <a href={CV} download="Nyuydze-Banven-Eric-Junior-CV.pdf">
+                  <span className="contact-link-label">CV</span>
+                  <span className="contact-link-val">Download PDF ↓</span>
+                </a>
+              </div>
+              <p className="contact-loc">Yaoundé · Cameroon</p>
+            </div>
+          </Reveal>
+        </section>
+
+        {/* Footer */}
+        <footer className="footer">
+          <span>© {new Date().getFullYear()} Nyuydze Banven Eric Junior</span>
+          <span className="footer-rule" />
+          <span className="footer-meta">Built in Yaoundé · Software engineering portfolio</span>
+        </footer>
       </main>
-    </>
+    </div>
   );
 }
