@@ -36,6 +36,7 @@ export default function NoaHero() {
   const heroRef = useRef<HTMLElement>(null);
   const [progress, setProgress] = useState(0);
   const [phase, setPhase] = useState<"loading" | "ready" | "error">("loading");
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     let disposed = false;
@@ -826,6 +827,13 @@ export default function NoaHero() {
   const labelText =
     phase === "error" ? "Refresh to try again" : "66,000 dots";
 
+  const NAV_ITEMS = [
+    { label: "Work", href: "#work" },
+    { label: "About", href: "#about" },
+    { label: "Process", href: "#process" },
+    { label: "Contact", href: "#contact" },
+  ];
+
   return (
     <section
       ref={heroRef as any}
@@ -872,15 +880,78 @@ export default function NoaHero() {
         <span className="noa-label">{labelText}</span>
       </div>
 
-      {/* Text */}
-      <a className="noa-logo" href="#top">
-        Banven.
-      </a>
-      <h1 className="noa-name">Banven Eric</h1>
-      <p className="noa-tagline">
-        Builds practical software for low-bandwidth contexts
-      </p>
+      {/* Top bar — title + nav */}
+      <header className="noa-topbar">
+        <span className="noa-title">BANVEN&apos;S PORTFOLIO</span>
+        <nav className="noa-nav" aria-label="Section navigation">
+          {NAV_ITEMS.map((item) => (
+            <a key={item.href} href={item.href}>
+              {item.label}
+            </a>
+          ))}
+        </nav>
+        <button
+          type="button"
+          className="noa-hamburger"
+          aria-label="Toggle navigation menu"
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen((o) => !o)}
+        >
+          <span />
+          <span />
+          <span />
+        </button>
+      </header>
+
+      {/* Mobile menu dropdown */}
+      {menuOpen && (
+        <div className="noa-mobile-menu">
+          {NAV_ITEMS.map((item) => (
+            <a
+              key={item.href}
+              href={item.href}
+              onClick={() => setMenuOpen(false)}
+            >
+              {item.label}
+            </a>
+          ))}
+        </div>
+      )}
+
+      {/* Hero content — left side */}
+      <div className="noa-content">
+        <h1 className="noa-name">Banven Eric</h1>
+        <img
+          className="noa-portrait-small"
+          src="/portrait.png?v=4"
+          alt="Portrait of Nyuydze Banven Eric Junior"
+          width="64"
+          height="80"
+        />
+        <p className="noa-role">
+          Software Engineering · AI · Automation
+        </p>
+        <p className="noa-location">
+          Yaoundé, Cameroon — Open to work
+        </p>
+        <p className="noa-intro">
+          Computer engineering postgraduate building practical software for
+          low-bandwidth contexts — cultural preservation, personal finance,
+          AR commerce, and AI-assisted information tools.
+        </p>
+        <div className="noa-tags">
+          <span>Python</span>
+          <span>JavaScript</span>
+          <span>Node.js</span>
+          <span>AI</span>
+          <span>AR</span>
+        </div>
+      </div>
+
+      {/* Hint */}
       <p className="noa-hint">Move the light</p>
+
+      {/* Pill */}
       <a className="noa-pill" href="#work">
         View selected work →
       </a>
