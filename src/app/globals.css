@@ -694,6 +694,14 @@ body {
 /* ============================================================
    Project case studies
    ============================================================ */
+.case-featured-wrap {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 48px;
+  margin-bottom: 96px;
+  align-items: start;
+}
+
 .case-featured {
   display: grid;
   grid-template-columns: 1.2fr 1fr;
@@ -1464,6 +1472,66 @@ body {
 .noa-nav a:hover::after,
 .noa-nav a:focus-visible::after {
   right: 0;
+}
+
+/* Action buttons — GitHub icon + CV download */
+.noa-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.noa-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 10px;
+  font-family: "JetBrains Mono", "Geist Mono", ui-monospace, Menlo, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: 3px;
+  transition: background 220ms ease, color 220ms ease, border-color 220ms ease, transform 220ms ease;
+  cursor: pointer;
+}
+
+.noa-action-btn svg {
+  flex: 0 0 auto;
+}
+
+.noa-gh {
+  color: rgba(240, 229, 200, 0.7);
+  border: 1px solid rgba(240, 229, 200, 0.15);
+  background: transparent;
+}
+
+.noa-gh:hover,
+.noa-gh:focus-visible {
+  color: #f0e5c8;
+  border-color: rgba(240, 229, 200, 0.4);
+  transform: translateY(-1px);
+}
+
+.noa-cv {
+  color: #0f110d;
+  background: #f0e5c8;
+  border: 1px solid #f0e5c8;
+}
+
+.noa-cv:hover,
+.noa-cv:focus-visible {
+  background: #7fa8a3;
+  border-color: #7fa8a3;
+  color: #0f110d;
+  transform: translateY(-1px);
+}
+
+.noa-cv span {
+  line-height: 1;
 }
 
 /* Hamburger */

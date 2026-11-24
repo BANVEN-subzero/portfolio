@@ -163,9 +163,10 @@ const STACK = [
 ];
 
 /* ============================================================
-   Reveal helper — fade + rise on scroll
+   Motion helpers — varied scroll-triggered animations
    ============================================================ */
 
+// Fade + rise
 function Reveal({
   children,
   delay = 0,
@@ -184,6 +185,126 @@ function Reveal({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-80px" }}
       transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+// Slide in from left
+function SlideLeft({
+  children,
+  delay = 0,
+  className,
+}: {
+  children: React.ReactNode;
+  delay?: number;
+  className?: string;
+}) {
+  return (
+    <motion.div
+      className={className}
+      initial={{ opacity: 0, x: -60 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+// Slide in from right
+function SlideRight({
+  children,
+  delay = 0,
+  className,
+}: {
+  children: React.ReactNode;
+  delay?: number;
+  className?: string;
+}) {
+  return (
+    <motion.div
+      className={className}
+      initial={{ opacity: 0, x: 60 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+// Scale + fade (bounce-in feel)
+function ScaleIn({
+  children,
+  delay = 0,
+  className,
+}: {
+  children: React.ReactNode;
+  delay?: number;
+  className?: string;
+}) {
+  return (
+    <motion.div
+      className={className}
+      initial={{ opacity: 0, scale: 0.85 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.6, delay, type: "spring", stiffness: 120, damping: 16 }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+// Stagger container + item
+function StaggerGroup({
+  children,
+  className,
+  stagger = 0.08,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  stagger?: number;
+}) {
+  return (
+    <motion.div
+      className={className}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-50px" }}
+      variants={{
+        hidden: {},
+        visible: { transition: { staggerChildren: stagger } },
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+function StaggerItem({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <motion.div
+      className={className}
+      variants={{
+        hidden: { opacity: 0, y: 30, scale: 0.95 },
+        visible: {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+        },
+      }}
     >
       {children}
     </motion.div>
@@ -311,17 +432,17 @@ export default function Home() {
             Selected work
             ============================================================ */}
         <section className="section" id="work" aria-label="Selected work">
-          <Reveal>
+          <SlideLeft>
             <div className="section-head">
               <span className="section-num">01</span>
               <h2 className="section-title">Selected work</h2>
               <span className="section-rule" />
             </div>
-          </Reveal>
+          </SlideLeft>
 
           {/* Featured project */}
-          <Reveal delay={0.05}>
-            <article className="case case-featured">
+          <div className="case-featured-wrap">
+            <SlideLeft delay={0.05}>
               <div className="case-image-wrap">
                 <img
                   className="case-image"
@@ -332,44 +453,58 @@ export default function Home() {
                 />
                 <span className="case-image-tag">{PROJECTS[0].status}</span>
               </div>
+            </SlideLeft>
+            <SlideRight delay={0.1}>
               <div className="case-body">
                 <div className="case-head">
                   <span className="case-index">{PROJECTS[0].index}</span>
                   <h3 className="case-title">{PROJECTS[0].title}</h3>
                 </div>
                 <p className="case-meta">{PROJECTS[0].year} · {PROJECTS[0].role}</p>
-                <div className="case-section">
-                  <span className="case-section-label">Problem</span>
-                  <p>{PROJECTS[0].problem}</p>
-                </div>
-                <div className="case-section">
-                  <span className="case-section-label">Solution</span>
-                  <p>{PROJECTS[0].solution}</p>
-                </div>
-                <div className="case-section">
-                  <span className="case-section-label">Contribution</span>
-                  <p>{PROJECTS[0].contribution}</p>
-                </div>
-                <div className="case-section">
-                  <span className="case-section-label">Stack</span>
-                  <ul className="case-stack">
-                    {PROJECTS[0].stack.map((s) => (
-                      <li key={s}>{s}</li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="case-section">
-                  <span className="case-section-label">Result</span>
-                  <p>{PROJECTS[0].result}</p>
-                </div>
+                <StaggerGroup stagger={0.06}>
+                  <StaggerItem>
+                    <div className="case-section">
+                      <span className="case-section-label">Problem</span>
+                      <p>{PROJECTS[0].problem}</p>
+                    </div>
+                  </StaggerItem>
+                  <StaggerItem>
+                    <div className="case-section">
+                      <span className="case-section-label">Solution</span>
+                      <p>{PROJECTS[0].solution}</p>
+                    </div>
+                  </StaggerItem>
+                  <StaggerItem>
+                    <div className="case-section">
+                      <span className="case-section-label">Contribution</span>
+                      <p>{PROJECTS[0].contribution}</p>
+                    </div>
+                  </StaggerItem>
+                  <StaggerItem>
+                    <div className="case-section">
+                      <span className="case-section-label">Stack</span>
+                      <ul className="case-stack">
+                        {PROJECTS[0].stack.map((s) => (
+                          <li key={s}>{s}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </StaggerItem>
+                  <StaggerItem>
+                    <div className="case-section">
+                      <span className="case-section-label">Result</span>
+                      <p>{PROJECTS[0].result}</p>
+                    </div>
+                  </StaggerItem>
+                </StaggerGroup>
               </div>
-            </article>
-          </Reveal>
+            </SlideRight>
+          </div>
 
-          {/* Other projects — asymmetric grid */}
+          {/* Other projects — asymmetric grid with bounce-in */}
           <div className="case-grid">
             {PROJECTS.slice(1).map((p, i) => (
-              <Reveal key={p.id} delay={0.05 + i * 0.08}>
+              <ScaleIn key={p.id} delay={i * 0.1}>
                 <article className={`case case-${i + 2}`}>
                   <div className="case-image-wrap">
                     <img
@@ -387,33 +522,45 @@ export default function Home() {
                       <h3 className="case-title">{p.title}</h3>
                     </div>
                     <p className="case-meta">{p.year} · {p.role}</p>
-                    <div className="case-section">
-                      <span className="case-section-label">Problem</span>
-                      <p>{p.problem}</p>
-                    </div>
-                    <div className="case-section">
-                      <span className="case-section-label">Solution</span>
-                      <p>{p.solution}</p>
-                    </div>
-                    <div className="case-section">
-                      <span className="case-section-label">Contribution</span>
-                      <p>{p.contribution}</p>
-                    </div>
-                    <div className="case-section">
-                      <span className="case-section-label">Stack</span>
-                      <ul className="case-stack">
-                        {p.stack.map((s) => (
-                          <li key={s}>{s}</li>
-                        ))}
-                      </ul>
-                    </div>
-                    <div className="case-section">
-                      <span className="case-section-label">Result</span>
-                      <p>{p.result}</p>
-                    </div>
+                    <StaggerGroup stagger={0.05}>
+                      <StaggerItem>
+                        <div className="case-section">
+                          <span className="case-section-label">Problem</span>
+                          <p>{p.problem}</p>
+                        </div>
+                      </StaggerItem>
+                      <StaggerItem>
+                        <div className="case-section">
+                          <span className="case-section-label">Solution</span>
+                          <p>{p.solution}</p>
+                        </div>
+                      </StaggerItem>
+                      <StaggerItem>
+                        <div className="case-section">
+                          <span className="case-section-label">Contribution</span>
+                          <p>{p.contribution}</p>
+                        </div>
+                      </StaggerItem>
+                      <StaggerItem>
+                        <div className="case-section">
+                          <span className="case-section-label">Stack</span>
+                          <ul className="case-stack">
+                            {p.stack.map((s) => (
+                              <li key={s}>{s}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      </StaggerItem>
+                      <StaggerItem>
+                        <div className="case-section">
+                          <span className="case-section-label">Result</span>
+                          <p>{p.result}</p>
+                        </div>
+                      </StaggerItem>
+                    </StaggerGroup>
                   </div>
                 </article>
-              </Reveal>
+              </ScaleIn>
             ))}
           </div>
         </section>
@@ -422,16 +569,16 @@ export default function Home() {
             About — editorial narrative + timeline
             ============================================================ */}
         <section className="section" id="about" aria-label="About">
-          <Reveal>
+          <SlideRight>
             <div className="section-head">
               <span className="section-num">02</span>
               <h2 className="section-title">About</h2>
               <span className="section-rule" />
             </div>
-          </Reveal>
+          </SlideRight>
 
           <div className="about-grid">
-            <Reveal>
+            <SlideLeft>
               <div className="about-prose">
                 <p>
                   I am Nyuydze Banven Eric Junior, a computer engineering
@@ -454,9 +601,9 @@ export default function Home() {
                   lead engineering for a product that matters to people here.
                 </p>
               </div>
-            </Reveal>
+            </SlideLeft>
 
-            <Reveal delay={0.1}>
+                       <SlideRight delay={0.1}>
               <div className="about-aside">
                 <span className="about-aside-label">Currently</span>
                 <ul className="about-current">
@@ -465,7 +612,7 @@ export default function Home() {
                   <li>Open to internship, collaboration, and junior engineering roles in web development, AI integration, or AR e-commerce.</li>
                 </ul>
               </div>
-            </Reveal>
+            </SlideRight>
           </div>
 
           {/* Timeline */}
@@ -497,17 +644,17 @@ export default function Home() {
             Process / Stack
             ============================================================ */}
         <section className="section" id="process" aria-label="Process and stack">
-          <Reveal>
+          <SlideLeft>
             <div className="section-head">
               <span className="section-num">03</span>
               <h2 className="section-title">Process &amp; Stack</h2>
               <span className="section-rule" />
             </div>
-          </Reveal>
+          </SlideLeft>
 
-          <div className="stack-grid">
-            {STACK.map((g, i) => (
-              <Reveal key={g.group} delay={i * 0.06}>
+          <StaggerGroup className="stack-grid" stagger={0.1}>
+            {STACK.map((g) => (
+              <StaggerItem key={g.group}>
                 <div className="stack-col">
                   <h3 className="stack-col-title">{g.group}</h3>
                   <ul className="stack-list">
@@ -516,33 +663,33 @@ export default function Home() {
                     ))}
                   </ul>
                 </div>
-              </Reveal>
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerGroup>
 
-          <Reveal delay={0.1}>
+          <ScaleIn delay={0.1}>
             <p className="process-note">
               I pick the boring, correct tool over the impressive, fragile one.
               The same instinct applies to architecture, dependencies, and UI:
               choose what holds up under a flaky connection on a mid-range phone,
               not what looks best in a demo.
             </p>
-          </Reveal>
+          </ScaleIn>
         </section>
 
         {/* ============================================================
             Contact
             ============================================================ */}
         <section className="section" id="contact" aria-label="Contact">
-          <Reveal>
+          <SlideRight>
             <div className="section-head">
               <span className="section-num">04</span>
               <h2 className="section-title">Contact</h2>
               <span className="section-rule" />
             </div>
-          </Reveal>
+          </SlideRight>
 
-          <Reveal delay={0.05}>
+          <ScaleIn delay={0.05}>
             <div className="contact-block">
               <p className="contact-lead">
                 Open to internship, collaboration, and junior engineering roles
@@ -572,7 +719,7 @@ export default function Home() {
               </div>
               <p className="contact-loc">Yaoundé · Cameroon</p>
             </div>
-          </Reveal>
+          </ScaleIn>
         </section>
 
         {/* Footer */}

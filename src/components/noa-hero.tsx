@@ -880,7 +880,7 @@ export default function NoaHero() {
         <span className="noa-label">{labelText}</span>
       </div>
 
-      {/* Top bar — title + nav */}
+      {/* Top bar — title + nav + actions */}
       <header className="noa-topbar">
         <span className="noa-title">BANVEN&apos;S PORTFOLIO</span>
         <nav className="noa-nav" aria-label="Section navigation">
@@ -890,6 +890,31 @@ export default function NoaHero() {
             </a>
           ))}
         </nav>
+        <div className="noa-actions">
+          <a
+            className="noa-action-btn noa-gh"
+            href="https://github.com/BANVEN-subzero"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="GitHub"
+          >
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+              <path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.34-1.27-1.7-1.27-1.7-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.68 1.24 3.34.95.1-.74.4-1.24.72-1.53-2.55-.29-5.23-1.28-5.23-5.7 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.46.11-3.05 0 0 .96-.31 3.15 1.18a10.93 10.93 0 0 1 5.74 0c2.19-1.49 3.15-1.18 3.15-1.18.62 1.59.23 2.76.11 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.41-5.25 5.69.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z" />
+            </svg>
+          </a>
+          <a
+            className="noa-action-btn noa-cv"
+            href="/Nyuydze-Banven-Eric-Junior-CV.pdf"
+            download="Nyuydze-Banven-Eric-Junior-CV.pdf"
+          >
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <path d="M7 10l5 5 5-5" />
+              <path d="M12 15V3" />
+            </svg>
+            <span>CV</span>
+          </a>
+        </div>
         <button
           type="button"
           className="noa-hamburger"
