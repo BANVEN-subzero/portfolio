@@ -10,8 +10,7 @@ import { useEffect, useRef, useState } from "react";
  * Spec values are taken directly from the reference page.
  */
 
-const GLB_URL =
-  "https://threejs.org/examples/models/gltf/LeePerrySmith/LeePerrySmith.glb";
+const GLB_URL = "/models/head.glb";
 const THREE_URL = "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js";
 const ADDONS_BASE = "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/";
 
